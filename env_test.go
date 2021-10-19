@@ -83,7 +83,8 @@ func TestEnv(t *testing.T) {
 				g := NewGomegaWithT(tt)
 
 				env := MockEnv{}
-				env.Load(map[string]string{})
+				err := env.Load(map[string]string{})
+				g.Expect(err).NotTo(HaveOccurred())
 
 				g.Expect(env.Load(map[string]string{})).To(MatchError("mock environment is already loaded"))
 
