@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  GOPATH: ${{ github.workspace }}
+
 jobs:
   lint:
     name: Linting

@@ -3,7 +3,10 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+
+env:
+  GOPATH: ${{ github.workspace }}
 
 jobs:
   release:
