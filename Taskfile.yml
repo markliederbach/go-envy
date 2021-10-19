@@ -35,7 +35,7 @@ tasks:
   coverage:
     desc: Exits in non-zero if total coverage is below threshold
     vars:
-      THRESHOLD: 100
+      THRESHOLD: 88.6
     cmds:
       - >
         coverage=$(go tool cover -func=coverage.out | grep "total:" | grep -o -E '1?[0-9][0-9]?.[0-9]');
