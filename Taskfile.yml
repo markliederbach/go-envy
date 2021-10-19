@@ -1,5 +1,9 @@
 version: "3"
 
+env:
+  GOPATH:
+    sh: go env GOPATH
+
 tasks:
   deps:
     desc: Install go tools
