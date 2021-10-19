@@ -1,10 +1,11 @@
-package envy_test
+package envy
 
 import (
+	"errors"
 	"os"
+	"syscall"
 	"testing"
 
-	"github.com/markliederbach/go-envy"
 	. "github.com/onsi/gomega"
 )
 
@@ -29,7 +30,7 @@ func TestEnv(t *testing.T) {
 				err = os.Unsetenv("TEST_VAR3")
 				g.Expect(err).NotTo(HaveOccurred())
 
-				env := envy.MockEnv{}
+				env := MockEnv{}
 				err = env.Load(
 					map[string]string{
 						"TEST_VAR1": "bar",
@@ -70,9 +71,43 @@ func TestEnv(t *testing.T) {
 			runner: func(tt *testing.T) {
 				g := NewGomegaWithT(tt)
 
-				env := envy.MockEnv{}
+				env := MockEnv{}
 
-				g.Expect(env.Restore).To(Panic())
+				g.Expect(env.Restore).To(PanicWith(errors.New("environment not loaded")))
+
+			},
+		},
+		{
+			testCase: "panics for loading a loaded environment",
+			runner: func(tt *testing.T) {
+				g := NewGomegaWithT(tt)
+
+				env := MockEnv{}
+				env.Load(map[string]string{})
+
+				g.Expect(env.Load(map[string]string{})).To(MatchError("mock environment is already loaded"))
+
+			},
+		},
+		{
+			testCase: "panics for loading empty variable key",
+			runner: func(tt *testing.T) {
+				g := NewGomegaWithT(tt)
+
+				env := MockEnv{}
+
+				g.Expect(env.Load(map[string]string{"": "bad key"})).To(MatchError(syscall.EINVAL))
+
+			},
+		},
+		{
+			testCase: "panics for restoring empty variable key",
+			runner: func(tt *testing.T) {
+				g := NewGomegaWithT(tt)
+
+				env := MockEnv{isLoaded: true, existing: map[string]string{"": "bad key"}}
+
+				g.Expect(env.Restore).To(PanicWith(os.NewSyscallError("setenv", syscall.EINVAL)))
 
 			},
 		},

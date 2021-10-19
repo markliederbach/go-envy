@@ -1,10 +1,9 @@
-package envy_test
+package envy
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/markliederbach/go-envy"
 	. "github.com/onsi/gomega"
 )
 
@@ -16,16 +15,16 @@ func TestPatch(t *testing.T) {
 				g := NewGomegaWithT(tt)
 
 				functionName := "foobar"
-				envy.ObjectChannels[functionName] = make(chan interface{}, 100)
-				envy.ErrorChannels[functionName] = make(chan error, 100)
-				envy.DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
-				envy.DefaultErrors[functionName] = fmt.Errorf("ruh roh")
+				ObjectChannels[functionName] = make(chan interface{}, 100)
+				ErrorChannels[functionName] = make(chan error, 100)
+				DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
+				DefaultErrors[functionName] = fmt.Errorf("ruh roh")
 
-				obj := envy.GetObject(functionName)
+				obj := GetObject(functionName)
 				g.Expect(obj).To(BeAssignableToTypeOf(struct{ Foo string }{}))
 				g.Expect(obj.(struct{ Foo string })).To(Equal(struct{ Foo string }{Foo: "bar"}))
 
-				err := envy.GetError(functionName)
+				err := GetError(functionName)
 				g.Expect(err).To(MatchError("ruh roh"))
 			},
 		},
@@ -36,22 +35,22 @@ func TestPatch(t *testing.T) {
 
 				functionName := "foobar"
 
-				envy.ObjectChannels[functionName] = make(chan interface{}, 100)
-				envy.ErrorChannels[functionName] = make(chan error, 100)
-				envy.DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
-				envy.DefaultErrors[functionName] = nil
+				ObjectChannels[functionName] = make(chan interface{}, 100)
+				ErrorChannels[functionName] = make(chan error, 100)
+				DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
+				DefaultErrors[functionName] = nil
 
-				err := envy.AddObjectReturns(functionName, struct{ Foo string }{Foo: "foo"})
+				err := AddObjectReturns(functionName, struct{ Foo string }{Foo: "foo"})
 				g.Expect(err).NotTo(HaveOccurred())
 
-				err = envy.AddErrorReturns(functionName, fmt.Errorf("some error"))
+				err = AddErrorReturns(functionName, fmt.Errorf("some error"))
 				g.Expect(err).NotTo(HaveOccurred())
 
-				obj := envy.GetObject(functionName)
+				obj := GetObject(functionName)
 				g.Expect(obj).To(BeAssignableToTypeOf(struct{ Foo string }{}))
 				g.Expect(obj.(struct{ Foo string })).To(Equal(struct{ Foo string }{Foo: "foo"}))
 
-				err = envy.GetError(functionName)
+				err = GetError(functionName)
 				g.Expect(err).To(MatchError("some error"))
 			},
 		},
@@ -62,15 +61,15 @@ func TestPatch(t *testing.T) {
 
 				functionName := "foobar"
 
-				envy.ObjectChannels[functionName] = make(chan interface{}, 100)
-				envy.ErrorChannels[functionName] = make(chan error, 100)
-				envy.DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
-				envy.DefaultErrors[functionName] = nil
+				ObjectChannels[functionName] = make(chan interface{}, 100)
+				ErrorChannels[functionName] = make(chan error, 100)
+				DefaultObjects[functionName] = struct{ Foo string }{Foo: "bar"}
+				DefaultErrors[functionName] = nil
 
-				err := envy.AddObjectReturns("notafunction", struct{ Foo string }{Foo: "foo"})
+				err := AddObjectReturns("notafunction", struct{ Foo string }{Foo: "foo"})
 				g.Expect(err).To(HaveOccurred())
 
-				err = envy.AddErrorReturns("notafunction", fmt.Errorf("some error"))
+				err = AddErrorReturns("notafunction", fmt.Errorf("some error"))
 				g.Expect(err).To(HaveOccurred())
 
 			},
